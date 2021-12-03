@@ -1,0 +1,38 @@
+---
+# Release a build if the CI pipeline runs successfully
+
+name: Release
+'on':
+  workflow_run:
+    workflows: ["ci"]
+    types: [completed]
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      RELEASE_TAG: last_known_good
+
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Remove release tag.
+        run: |
+          git tag --delete "${RELEASE_TAG}" || true
+          git push --delete origin "${RELEASE_TAG}" || true
+        shell: bash
+
+      - name: Create release tag.
+        env:
+          GIT_USER: ${{ github.event.workflow_run.head_commit.author.name }}
+          GIT_EMAIL: ${{ github.event.workflow_run.head_commit.author.email }}
+          RELEASE_MSG: ${{ github.event.workflow_run.head_commit.message }}
+        run: |
+          git config user.email '"'"${GIT_USER}"'"'
+          git config user.name '"'"${GIT_EMAIL}"'"'
+          git tag -a "${RELEASE_TAG}" -m '"'"${RELEASE_MSG}"'"'
+          git push origin "${RELEASE_TAG}"
+        shell: bash

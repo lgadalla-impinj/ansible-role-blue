@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature Request
+    url: https://github.com/lgadalla-impinj/ansible-role-blue/discussions/new?category=ideas
+    about: Share ideas for new features
+  - name: Ask a Question
+    url: https://github.com/lgadalla-impinj/ansible-role-blue/discussions/new?category=Q-A
+    about: Ask for help

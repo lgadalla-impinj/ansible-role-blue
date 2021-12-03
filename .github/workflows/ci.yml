@@ -1,0 +1,95 @@
+---
+name: CI
+'on':
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+  schedule:
+    - cron: "0 5 * * 4"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Update Python package management tools.
+        run: python -m pip install --upgrade pip setuptools wheel
+        shell: bash
+
+      - name: Install YAML test tools.
+        run: python -m pip install yamllint
+        shell: bash
+
+      - name: Lint code.
+        run: |
+          yamllint .
+        shell: bash
+
+  molecule:
+    needs: lint
+    name: Molecule
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distro:
+          - geerlingguy/docker-ubuntu2004-ansible:latest
+          - geerlingguy/docker-ubuntu1804-ansible:latest
+          - geerlingguy/docker-centos7-ansible:latest
+          - geerlingguy/docker-centos8-ansible:latest
+          - geerlingguy/docker-debian10-ansible:latest
+          - geerlingguy/docker-debian9-ansible:latest
+          - geerlingguy/docker-fedora34-ansible:latest
+          - geerlingguy/docker-amazonlinux2-ansible:latest
+
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Setup git credentials
+        uses: fusion-engineering/setup-git-credentials@v2.0.7
+        with:
+          credentials: https://di-automation:${{ secrets.AUTOMATION_PAT }}@github.com/
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Update Python package management tools
+        run: python -m pip install --upgrade pip setuptools wheel
+        shell: bash
+
+      - name: Install Molecule test dependencies.
+        run: python -m pip install ansible molecule[docker] docker ansible-lint flake8
+        shell: bash
+
+      - name: Show Python versions/packages
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+        run: |
+          molecule --version
+          python -m pip freeze
+        shell: bash
+
+      - name: Run Molecule tests.
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_DISTRO: ${{ matrix.distro }}
+        run: molecule test
+        shell: bash

@@ -1,0 +1,60 @@
+---
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: git://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-symlinks
+      - id: check-vcs-permalinks
+      - id: check-xml
+      - id: check-yaml
+      - id: destroyed-symlinks
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: forbid-new-submodules
+      - id: mixed-line-ending
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.1.7
+    hooks:
+      - id: forbid-crlf
+      - id: remove-crlf
+      - id: forbid-tabs
+      - id: remove-tabs
+  - repo: https://github.com/gruntwork-io/pre-commit
+    rev: v0.1.17  # Get the latest from: https://github.com/gruntwork-io/pre-commit/releases
+    hooks:
+      - id: shellcheck
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.26.2
+    hooks:
+      - id: yamllint
+        exclude: >
+          (?x)^(
+            examples/playbooks/templates/.*|
+            examples/other/some.j2.yaml
+          )$
+        files: \.(yaml|yml)$
+        types: [file, yaml]
+        entry: yamllint --strict
+  - repo: https://github.com/ansible-community/ansible-lint.git
+    rev: v5.2.0
+    hooks:
+      - id: ansible-lint
+        exclude: >
+          (?x)^(
+            roles/.*|
+            molecule/.*|
+            .github/.*|
+            .pre-commit-config.yaml|
+            .pre-commit-hooks.yaml
+          )$
+        files: \.(yaml|yml)$
+        types: [file, yaml]
+        entry: ansible-lint --force-color

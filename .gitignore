@@ -1,0 +1,9 @@
+*~
+*.retry
+*/__pycache__
+*.pyc
+.python-version
+.DS_Store
+*.hosts
+!roles/requirements.yml
+roles/*

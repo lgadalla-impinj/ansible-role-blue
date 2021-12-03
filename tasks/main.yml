@@ -1,0 +1,4 @@
+---
+- name: Say who I am
+  debug:
+    msg: "Hello from {{ role_name }}"

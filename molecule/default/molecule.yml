@@ -1,0 +1,30 @@
+---
+dependency:
+  name: galaxy
+  options:
+    role-file: "${MOLECULE_SCENARIO_DIRECTORY}/requirements.yml"
+    requirements-file: "${MOLECULE_SCENARIO_DIRECTORY}/requirements.yml"
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+  flake8
+driver:
+  name: docker
+platforms:
+  - name: instance
+    image: ${MOLECULE_DISTRO:-"geerlingguy/docker-ubuntu2004-ansible:latest"}
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+  lint:
+    name: ansible-lint
+verifier:
+  name: ansible
+  enabled: true
