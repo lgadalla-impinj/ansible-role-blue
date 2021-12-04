@@ -1,4 +1,9 @@
 ---
+dependency:
+  name: galaxy
+  options:
+    role-file: "${MOLECULE_SCENARIO_DIRECTORY}/requirements.yml"
+    requirements-file: "${MOLECULE_SCENARIO_DIRECTORY}/requirements.yml"
 lint: |
   set -e
   yamllint .

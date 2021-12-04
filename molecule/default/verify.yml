@@ -1,0 +1,12 @@
+---
+# Playbook to execute Ansible verification tests.
+
+- name: Verify
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Dummy test
+      assert:
+        that:
+          - true
