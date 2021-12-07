@@ -6,40 +6,11 @@ name: CI
     branches:
     - main
   pull_request:
-    branches:
-    - main
   schedule:
     - cron: "0 5 * * 4"
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out the codebase.
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-
-      - name: Update Python package management tools.
-        run: python -m pip install --upgrade pip setuptools wheel
-        shell: bash
-
-      - name: Install YAML test tools.
-        run: python -m pip install yamllint
-        shell: bash
-
-      - name: Lint code.
-        run: |
-          yamllint .
-        shell: bash
-
   molecule:
-    needs: lint
     name: Molecule
     runs-on: ubuntu-latest
     strategy:
@@ -90,6 +61,9 @@ jobs:
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
+          ANSIBLE_VERBOSITY: '1'
+          ANSIBLE_STDOUT_CALLBACK: 'yaml'
+          ANSIBLE_LOAD_CALLBACK_PLUGINS: 'True'
           MOLECULE_DISTRO: ${{ matrix.distro }}
         run: molecule test
         shell: bash
